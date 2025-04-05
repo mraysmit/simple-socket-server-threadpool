@@ -1,8 +1,6 @@
 package dev.mars;
 
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.io.IOException;
+import java.io.*;
 import java.net.Socket;
 
 public class WorkerRunnable implements Runnable{
@@ -14,12 +12,13 @@ public class WorkerRunnable implements Runnable{
 
     public void run() {
         try {
-            InputStream input  = clientSocket.getInputStream();
-            OutputStream output = clientSocket.getOutputStream();
+            // Create reader and writer
+            BufferedReader reader = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
+            PrintWriter writer = new PrintWriter(clientSocket.getOutputStream(), true);
 
-            output.write("HTTP/1.1 200 OK\n\nWorkerRunnable: hello".getBytes());
-            output.close();
-            input.close();
+            writer.print("HTTP/1.1 200 OK\n\nWorkerRunnable: hello".getBytes());
+            writer.close();
+            reader.close();
 
         } catch (IOException e) {
             //report exception somewhere.
