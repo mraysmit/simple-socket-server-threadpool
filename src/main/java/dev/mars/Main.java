@@ -5,7 +5,8 @@ public class Main {
     public static void main(String[] args) throws InterruptedException {
 
         var server = new ThreadPooledServer(9000, 10);
-        System.out.println("Starting Server");
+        System.out.println("Starting Server will shudown in 20 seconds");
+        System.out.println("test with curl -v http://localhost:9000");
         new Thread(server).start();
 
         try {
