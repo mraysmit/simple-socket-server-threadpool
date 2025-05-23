@@ -98,8 +98,58 @@ public class HttpServerTest {
         socket.close();
 
         // Verify the response body
-        assertEquals("Hello, World! This is a simple HTTP server.", responseBody.toString());
+        assertEquals("Hello, World!", responseBody.toString());
 
         System.out.println("HTTP test passed successfully!");
+    }
+
+    @Test
+    public void testHttpResponseWithNameParameter() throws IOException {
+        // Create a socket connection to the server
+        Socket socket = new Socket("localhost", PORT);
+
+        // Send an HTTP GET request with name parameter
+        PrintWriter out = new PrintWriter(socket.getOutputStream(), true);
+        out.println("GET /?name=John HTTP/1.1");
+        out.println("Host: localhost:" + PORT);
+        out.println("Connection: close");
+        out.println(); // Empty line to indicate end of headers
+
+        // Read the response
+        BufferedReader in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
+
+        // Read status line
+        String statusLine = in.readLine();
+        System.out.println("[DEBUG_LOG] Status line: " + statusLine);
+        assertTrue(statusLine.contains("200 OK"), "Status line should contain 200 OK");
+
+        // Read headers
+        String line;
+        boolean foundContentType = false;
+        while ((line = in.readLine()) != null && !line.isEmpty()) {
+            System.out.println("[DEBUG_LOG] Header: " + line);
+            if (line.toLowerCase().startsWith("content-type:")) {
+                foundContentType = true;
+                assertTrue(line.toLowerCase().contains("text/plain"), 
+                        "Content-Type header should specify text/plain");
+            }
+        }
+        assertTrue(foundContentType, "Response should include Content-Type header");
+
+        // Read body
+        StringBuilder responseBody = new StringBuilder();
+        while ((line = in.readLine()) != null) {
+            responseBody.append(line);
+        }
+
+        // Close resources
+        in.close();
+        out.close();
+        socket.close();
+
+        // Verify the response body contains the name parameter
+        assertEquals("Hello, John!", responseBody.toString());
+
+        System.out.println("HTTP test with name parameter passed successfully!");
     }
 }
